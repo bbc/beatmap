@@ -1,0 +1,77 @@
+<html>
+<head>
+  <title>BeatMap example</title>
+  <script src="bower_components/kineticjs/kinetic.min.js"></script>
+  <script src="beatmap.js"></script>
+</head>
+<body onload="trackClicks()">
+
+<!-- audio display -->
+<div id="display" onmousedown="seek(true)" onmousemove="seek()"></div>
+<br />
+
+<!-- audio element -->
+<audio controls id="audio">
+  <source src="example/audio.ogg" type="audio/ogg">
+  Your browser does not support the audio element.
+</audio>
+
+<!-- selection buttons -->
+<button type="button" onclick="bm.setIn(audio.currentTime)">
+  Mark in
+</button>
+<button type="button" onclick="bm.setOut(audio.currentTime)">
+  Mark out
+</button>
+
+<script>
+
+  // declare variables
+  var bm;
+  var isMouseDown = false;
+  var audio = document.getElementById("audio");
+  var display = document.getElementById("display");
+
+  // metadata of images to use
+  var data = {
+    height: 240,
+    image: [
+      {
+        src: 'example/1',
+        tilewidth: 240,
+        width: 960,
+        format: 'jpg'
+      }
+    ]
+  };
+
+  // when duration of recording is known
+  audio.addEventListener('durationchange', function()
+  {
+    // initialize display
+    bm = new BeatMap(display,         // div element to use
+                     data,            // image metadata
+                     960,             // width of element in pixels
+                     audio.duration,  // length of recording in secs
+                     0,               // index of image to use (default=0)
+                     true);           // display timeline flag (default=true)
+
+    // start drawing loop
+    window.setInterval("bm.draw(audio.currentTime)", 50);
+  });
+
+  // move cursor
+  function seek(bypass) {
+    if (isMouseDown || bypass) audio.currentTime = bm.findSecs();
+  }
+
+  // track mouse clicking
+  function trackClicks() {
+    document.body.onmousedown = function() {isMouseDown=true;};
+    document.body.onmouseup = function() {isMouseDown=false;};
+  }
+
+</script>
+
+</body>
+</html>

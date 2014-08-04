@@ -1,0 +1,27 @@
+{
+  "name": "beatmap",
+  "version": "0.1",
+  "authors": [
+    "Chris Baume <chris.baume@bbc.co.uk>"
+  ],
+  "description": "Audio display using tiled bitmaps",
+  "main": "beatmap.js",
+  "dependencies": {
+    "kineticjs": "~5.1.0"
+  },
+  "moduleType": [
+    "globals"
+  ],
+  "keywords": [
+    "audio",
+    "visualization",
+    "display",
+    "interface",
+    "tiled",
+    "tiling",
+    "bitmap"
+  ],
+  "license": "Apache 2",
+  "homepage": "www.bbc.co.uk/rd/audio",
+  "private": true
+}
