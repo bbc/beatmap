@@ -5,21 +5,25 @@ function BeatMap(containerId,
                  index,
                  showTime)
 {
-  var index = typeof index !== 'undefined' ? index : 0;
-  var showTime = typeof showTime !== 'undefined' ? showTime : true;
   this.offset=0;
   this.inpoint=0;
   this.outpoint=0;
   this.ticksPerView=10;
 
+  // set defaults
+  var index = typeof index !== 'undefined' ? index : 0;
+  var showTime = typeof showTime !== 'undefined' ? showTime : true;
+
   // copy data
+  this.trackData=trackData;
   this.height=trackData.height;
   this.length=trackLength;
   this.outWidth=containerWidth;
   this.showTime=showTime;
+  this.currentZoom=index;
 
   // initialize
-  this.init(trackData.image[index]);
+  this.init(trackData.image[this.currentZoom]);
   this.kineticInit(containerId);
 }
 
@@ -244,4 +248,20 @@ BeatMap.prototype.drawMarker = function()
   this.selection.setAttr('x', xpos);
   this.selection.setAttr('width', widthpos);
   this.selection.moveToTop();
+}
+
+BeatMap.prototype.zoom = function(zoomin)
+{
+  if (zoomin) {
+    if (this.currentZoom < this.trackData.image.length-1) {
+      this.currentZoom++;
+      this.init(this.trackData.image[this.currentZoom]);
+    }
+  } else {
+    if (this.currentZoom > 0) {
+      this.currentZoom--;
+      this.init(this.trackData.image[this.currentZoom]);
+    }
+  }
+
 }

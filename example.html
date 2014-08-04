@@ -16,6 +16,14 @@
   Your browser does not support the audio element.
 </audio>
 
+<!-- zoom buttons -->
+<button type="button" onclick="bm.zoom(true)">
+  Zoom in
+</button>
+<button type="button" onclick="bm.zoom(false)">
+  Zoom out
+</button>
+
 <!-- selection buttons -->
 <button type="button" onclick="bm.setIn(audio.currentTime)">
   Mark in
@@ -28,6 +36,7 @@
 
   // declare variables
   var bm;
+  var currentZoom = 0;
   var isMouseDown = false;
   var audio = document.getElementById("audio");
   var display = document.getElementById("display");
@@ -40,6 +49,12 @@
         src: 'example/1',
         tilewidth: 240,
         width: 960,
+        format: 'jpg'
+      },
+      {
+        src: 'example/5',
+        tilewidth: 240,
+        width: 4800,
         format: 'jpg'
       }
     ]
