@@ -1,5 +1,31 @@
-function BeatMap(containerId,
-                 trackData,
+/*
+   Copyright 2014 British Broadcasting Corporation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
+/**
+ * Create tiled bitmap display.
+ * @constructor
+ * @param {Object} container DIV element for display
+ * @param {Object} data Metadata of images
+ * @param {number} containerWidth Width of display (in pixels)
+ * @param {number} trackLength Length of audio track (in seconds)
+ * @param {number} [index=0] Index of image to use initially
+ * @param {boolean} [showTime=true] Flag to display time markers
+ */
+function BeatMap(container,
+                 data,
                  containerWidth,
                  trackLength,
                  index,
@@ -15,18 +41,22 @@ function BeatMap(containerId,
   var showTime = typeof showTime !== 'undefined' ? showTime : true;
 
   // copy data
-  this.trackData=trackData;
-  this.height=trackData.height;
+  this.trackData=data;
+  this.height=data.height;
   this.length=trackLength;
   this.outWidth=containerWidth;
   this.showTime=showTime;
   this.currentZoom=index;
 
   // initialize
-  this.init(trackData.image[this.currentZoom]);
-  this.kineticInit(containerId);
+  this.init(data.image[this.currentZoom]);
+  this.kineticInit(container);
 }
 
+/**
+ * Initialize display
+ * @param {Object} imageData Metadata of image
+ */
 BeatMap.prototype.init = function(imageData)
 {
   this.tiles=new Array();
@@ -41,16 +71,29 @@ BeatMap.prototype.init = function(imageData)
   if (this.ticks) this.drawTime();
 }
 
+/**
+ * Returns current x offset.
+ * @returns {number}
+ */
 BeatMap.prototype.getOffset = function()
 {
   return this.offset/this.width*this.length;
 }
 
+/**
+ * Returns number of seconds that can currently be seen in display.
+ * @returns {number}
+ */
 BeatMap.prototype.getViewLength = function()
 {
   return this.outWidth/this.width*this.length;
 }
 
+/**
+ * Converts seconds to string of minutes and seconds (00:00).
+ * @param {number} seconds
+ * @returns {string}
+ */
 BeatMap.prototype.secsToMinsSecs = function(secs)
 {
   var mins = Math.floor(secs / 60);
@@ -58,6 +101,9 @@ BeatMap.prototype.secsToMinsSecs = function(secs)
   return ('0'+mins).slice(-2)+':'+('0'+Math.round(secs)).slice(-2);
 }
 
+/**
+ * Draw time markers
+ */
 BeatMap.prototype.drawTime = function()
 {
   if (!this.showTime) return;
@@ -105,6 +151,10 @@ BeatMap.prototype.drawTime = function()
   }
 }
 
+/**
+ * Initialize KineticJS.
+ * @param {Object} container
+ */
 BeatMap.prototype.kineticInit = function(containerId)
 {
   this.stage = new Kinetic.Stage({
@@ -150,6 +200,10 @@ BeatMap.prototype.kineticInit = function(containerId)
   this.drawTime();
 }
 
+/**
+ * Check if tile has been loaded and load if not.
+ * @param {number} index Index of tile
+ */
 BeatMap.prototype.loadTile = function(i)
 {
   if (this.tiles[i] === undefined)
@@ -178,6 +232,10 @@ BeatMap.prototype.loadTile = function(i)
   }
 }
 
+/**
+ * Draw display with cursor at given point.
+ * @param {number} seconds Position of cursor
+ */
 BeatMap.prototype.draw = function(secs)
 {
   this.offset = 0;
@@ -220,6 +278,10 @@ BeatMap.prototype.draw = function(secs)
   this.layer.draw();
 }
 
+/**
+ * Returns current mouse position on timeline in seconds.
+ * @returns {number} seconds
+ */
 BeatMap.prototype.findSecs = function()
 {
   var pos = this.stage.getPointerPosition();
@@ -227,6 +289,10 @@ BeatMap.prototype.findSecs = function()
   return (pos.x+this.offset)/this.width*this.length;
 }
 
+/**
+ * Set selection in point.
+ * @param {number} seconds
+ */
 BeatMap.prototype.setIn = function(secs)
 {
   this.inpoint = secs;
@@ -234,6 +300,10 @@ BeatMap.prototype.setIn = function(secs)
   this.drawMarker();
 }
 
+/**
+ * Set selection out point.
+ * @param {number} seconds
+ */
 BeatMap.prototype.setOut = function(secs)
 {
   this.outpoint = secs;
@@ -241,6 +311,9 @@ BeatMap.prototype.setOut = function(secs)
   this.drawMarker();
 }
 
+/**
+ * Draw selection.
+ */
 BeatMap.prototype.drawMarker = function()
 {
   var xpos = this.width/this.length*this.inpoint;
@@ -248,20 +321,4 @@ BeatMap.prototype.drawMarker = function()
   this.selection.setAttr('x', xpos);
   this.selection.setAttr('width', widthpos);
   this.selection.moveToTop();
-}
-
-BeatMap.prototype.zoom = function(zoomin)
-{
-  if (zoomin) {
-    if (this.currentZoom < this.trackData.image.length-1) {
-      this.currentZoom++;
-      this.init(this.trackData.image[this.currentZoom]);
-    }
-  } else {
-    if (this.currentZoom > 0) {
-      this.currentZoom--;
-      this.init(this.trackData.image[this.currentZoom]);
-    }
-  }
-
 }

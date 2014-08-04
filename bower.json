@@ -21,7 +21,7 @@
     "tiling",
     "bitmap"
   ],
-  "license": "Apache 2",
+  "license": "Apache",
   "homepage": "www.bbc.co.uk/rd/audio",
   "private": true
 }

@@ -1,0 +1,144 @@
+<html>
+<head>
+  <title>BeatMap example</title>
+  <script src="bower_components/kineticjs/kinetic.min.js"></script>
+  <script src="beatmap.js"></script>
+  <script src="beatmap-join.js"></script>
+</head>
+<body onload="trackClicks()">
+
+<!-- audio displays -->
+<div id="zoomed" onmousedown="seek(1, true)" onmousemove="seek(1)"></div>
+<div id="join"></div>
+<div id="overview" onmousedown="seek(0, true)" onmousemove="seek(0)"></div>
+<br />
+
+<!-- audio element -->
+<audio controls id="audio">
+  <source src="example/audio.ogg" type="audio/ogg">
+  Your browser does not support the audio element.
+</audio>
+
+<!-- zoom buttons -->
+<button type="button" onclick="zoom(true)">
+  Zoom in
+</button>
+<button type="button" onclick="zoom(false)">
+  Zoom out
+</button>
+
+<!-- selection buttons -->
+<button type="button"
+  onclick="bmOverview.setIn(audio.currentTime); bmZoomed.setIn(audio.currentTime)">
+  Mark in
+</button>
+<button type="button"
+  onclick="bmOverview.setOut(audio.currentTime); bmZoomed.setOut(audio.currentTime)">
+  Mark out
+</button>
+
+<script>
+
+  // declare variables
+  var bmZoomed, bmOverview;
+  var currentZoom = 1;
+  var isMouseDown = false;
+  var audio = document.getElementById("audio");
+  var zoomed = document.getElementById("zoomed");
+  var overview = document.getElementById("overview");
+
+  // metadata of images to use
+  var data = {
+    height: 240,
+    image: [
+      {
+        src: 'example/1',
+        tilewidth: 240,
+        width: 960,
+        format: 'jpg'
+      },
+      {
+        src: 'example/5',
+        tilewidth: 240,
+        width: 4800,
+        format: 'jpg'
+      },
+      {
+        src: 'example/10',
+        tilewidth: 240,
+        width: 9600,
+        format: 'jpg'
+      }
+    ]
+  };
+
+  // when duration of recording is known
+  audio.addEventListener('durationchange', function()
+  {
+    // initialize top display
+    bmZoomed = new BeatMap(zoomed,          // div element to use
+                           data,            // image metadata
+                           960,             // width of element in pixels
+                           audio.duration,  // length of recording in secs
+                           1,               // index of image to use (default=0)
+                           true);           // display timeline flag (default=true)
+
+    // initialize bottom display
+    bmOverview = new BeatMap(overview,
+                             data,
+                             960,
+                             audio.duration,
+                             0,
+                             true);
+
+    bmJoin = new BeatMapJoin(join,  // div to use
+                             960,   // width of div
+                             960,   // width of lower display
+                             40);   // height of div
+
+    // start drawing loop
+    window.setInterval("draw();", 50);
+  });
+
+  // move cursor
+  function seek(display, bypass) {
+    if (isMouseDown || bypass) {
+      if (display==0) {
+        audio.currentTime = bmOverview.findSecs();
+      } else {
+        audio.currentTime = bmZoomed.findSecs();
+      }
+    }
+  }
+
+  // track mouse clicking
+  function trackClicks() {
+    document.body.onmousedown = function() {isMouseDown=true;};
+    document.body.onmouseup = function() {isMouseDown=false;};
+  }
+
+  function zoom(zoomin) {
+    if (zoomin) {
+      if (currentZoom < data.image.length-1) {
+        currentZoom++;
+        bmZoomed.init(data.image[currentZoom]);
+      }
+    } else {
+      if (currentZoom > 1) {
+        currentZoom--;
+        bmZoomed.init(data.image[currentZoom]);
+      }
+    }
+  }
+
+  function draw() {
+    bmZoomed.draw(audio.currentTime);
+    bmOverview.draw(audio.currentTime);
+    bmJoin.draw(bmZoomed.getOffset(), bmZoomed.getViewLength(),
+        audio.duration);
+  }
+
+</script>
+
+</body>
+</html>

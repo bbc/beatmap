@@ -17,10 +17,10 @@
 </audio>
 
 <!-- zoom buttons -->
-<button type="button" onclick="bm.zoom(true)">
+<button type="button" onclick="zoom(true)">
   Zoom in
 </button>
-<button type="button" onclick="bm.zoom(false)">
+<button type="button" onclick="zoom(false)">
   Zoom out
 </button>
 
@@ -56,6 +56,12 @@
         tilewidth: 240,
         width: 4800,
         format: 'jpg'
+      },
+      {
+        src: 'example/10',
+        tilewidth: 240,
+        width: 9600,
+        format: 'jpg'
       }
     ]
   };
@@ -84,6 +90,20 @@
   function trackClicks() {
     document.body.onmousedown = function() {isMouseDown=true;};
     document.body.onmouseup = function() {isMouseDown=false;};
+  }
+
+  function zoom(zoomin) {
+    if (zoomin) {
+      if (currentZoom < data.image.length-1) {
+        currentZoom++;
+        bm.init(data.image[currentZoom]);
+      }
+    } else {
+      if (currentZoom > 0) {
+        currentZoom--;
+        bm.init(data.image[currentZoom]);
+      }
+    }
   }
 
 </script>
