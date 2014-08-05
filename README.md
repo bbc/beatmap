@@ -1,12 +1,15 @@
 # BeatMap
-A Javascript audio interface element based on tiled bitmap images.
+A Javascript audio visualization element based on tiled bitmap images. For a
+vector-based waveform visualization, see
+[peaks.js](https://github.com/bbcrd/peaks.js).
 
 ## Installation
 BeatMap can be installed using [bower](http://bower.io)
 
     bower install beatmap
 
-or by copying beatmap.js into your working directory.
+or by copying beatmap.js and [KineticJS](http://kineticjs.com/) into your
+working directory.
 
 ## Examples 
 Two working examples are supplied:
@@ -18,15 +21,17 @@ Two working examples are supplied:
   recording the zoomed display is showing
 
 ## Generating tiles
-The audio images to be displayed need to be cut into tiles and given filenames
-in the format _filename\_0.jpg_, _filename\_1.jpg_ etc. The supplied
-[ImageMagick](http://www.imagemagick.org) script _tilecut.sh_ chops an image
-into equally-spaced tiles an names them appropriately using a command such as:
+Firstly, generate images from your audio data using something like
+[Vampeyer](https://github.com/bbcrd/vampeyer). The images then need to be cut
+into tiles and given filenames in the format _filename\_0.jpg_,
+_filename\_1.jpg_ etc. The supplied [ImageMagick](http://www.imagemagick.org)
+script _tilecut.sh_ chops an image into equally-spaced tiles and names them
+appropriately. For example:
 
     ./tilecut.sh filename.jpg 240
 
 ## Usage
-In the header of your web page, insert:
+In the &lt;head&gt; section of your web page, insert:
 
     <script src="bower_components/kineticjs/kinetic.min.js"></script>
     <script src="bower_components/beatmap/beatmap.js"></script>
@@ -55,12 +60,12 @@ In a &lt;script&gt; element, declare an array containing the image metadata:
 Initialize a BeatMap object:
 
     var bm = new BeatMap(document.getElementById("display"),
-                         960,             // width of div element in pixels
-                         images,          // image metadata array
-                         240,             // height of images in pixels
-                         60,              // length of recording in seconds
-                         0,               // index of image to use (default=0)
-                         true);           // display timeline markers (default=true)
+                         960,           // width of div element in pixels
+                         images,        // image metadata array
+                         240,           // height of images in pixels
+                         60,            // length of recording in seconds
+                         0,             // index of image to use (default=0)
+                         true);         // display timeline markers (default=true)
 
 and finally create a drawing loop:
 
