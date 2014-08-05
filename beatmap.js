@@ -18,15 +18,17 @@
  * Create tiled bitmap display.
  * @constructor
  * @param {Object} container DIV element for display
- * @param {Object} data Metadata of images
  * @param {number} containerWidth Width of display (in pixels)
+ * @param {Object} images Metadata of images
+ * @param {number} height of images (in pixels)
  * @param {number} trackLength Length of audio track (in seconds)
  * @param {number} [index=0] Index of image to use initially
  * @param {boolean} [showTime=true] Flag to display time markers
  */
 function BeatMap(container,
-                 data,
                  containerWidth,
+                 images,
+                 height,
                  trackLength,
                  index,
                  showTime)
@@ -41,29 +43,28 @@ function BeatMap(container,
   var showTime = typeof showTime !== 'undefined' ? showTime : true;
 
   // copy data
-  this.trackData=data;
-  this.height=data.height;
+  this.height=height;
   this.length=trackLength;
   this.outWidth=containerWidth;
   this.showTime=showTime;
   this.currentZoom=index;
 
   // initialize
-  this.init(data.image[this.currentZoom]);
+  this.init(images[this.currentZoom]);
   this.kineticInit(container);
 }
 
 /**
  * Initialize display
- * @param {Object} imageData Metadata of image
+ * @param {Object} image Metadata of image
  */
-BeatMap.prototype.init = function(imageData)
+BeatMap.prototype.init = function(image)
 {
   this.tiles=new Array();
-  this.src=imageData.src;
-  this.format=imageData.format;
-  this.width=imageData.width;
-  this.tilewidth=imageData.tilewidth;
+  this.src=image.src;
+  this.format=image.format;
+  this.width=image.width;
+  this.tilewidth=image.tilewidth;
   this.tilecount=Math.ceil(this.width/this.tilewidth);
   this.cuts = Math.ceil(this.width/this.outWidth);
   this.cutWidth = this.width/this.cuts;
@@ -321,4 +322,79 @@ BeatMap.prototype.drawMarker = function()
   this.selection.setAttr('x', xpos);
   this.selection.setAttr('width', widthpos);
   this.selection.moveToTop();
+}
+
+/**
+ * Create line-based display which links two audio displays with different
+ * timescales.
+ * @constructor
+ * @param {Object} container DIV element for display
+ * @param {number} topWidth Width of top display (in pixels)
+ * @param {number} bottomWidth Width of bottom display (in pixels)
+ * @param {number} height Height of display (in pixels)
+ * @param {number} trackLength Length of audio track (in seconds)
+ */
+function BeatMapJoin(containerId, containerWidth, overviewWidth, height,
+    length)
+{
+  this.zoomWidth=containerWidth;
+  this.overviewWidth = overviewWidth;
+  this.height=height;
+  this.length=length;
+
+  this.offset=0;
+  this.vislength=0;
+
+  // initialize
+  this.kineticInit(containerId);
+}
+
+/**
+ * Initialize KineticJS
+ * @param {Object} container DIV element
+ */
+BeatMapJoin.prototype.kineticInit = function(containerId)
+{
+  this.stage = new Kinetic.Stage({
+    container: containerId,
+    width: this.zoomWidth,
+    height: this.height
+  });
+  this.layer = new Kinetic.Layer();
+  this.stage.add(this.layer);
+}
+
+/**
+ * Draw display
+ * @param {number} topOffset Offset of top display in pixels
+ * @param {number} topLength Length of visible audio in top display, in seconds
+ * @param {number} bottomLength Length of visible audio in bottom display, in seconds
+ */
+BeatMapJoin.prototype.draw = function(zoomOffset, zoomLength, overallLength)
+{
+  this.layer.destroyChildren();
+  var xOffset = (this.zoomWidth-this.overviewWidth)/2;
+  var leftX = xOffset+this.overviewWidth/overallLength*zoomOffset;
+  var rightX = xOffset+this.overviewWidth/overallLength*(zoomOffset+zoomLength);
+  this.layer.add(new Kinetic.Line({
+    points: [0, 0,
+             leftX/8, this.height/4,
+             leftX/2, this.height/2,
+             leftX*7/8, this.height*3/4,
+             leftX, this.height],
+    stroke: 'black',
+    strokeWidth: 1,
+    tension: 0.5
+  }));
+  this.layer.add(new Kinetic.Line({
+    points: [this.zoomWidth, 0,
+             rightX+(this.zoomWidth-rightX)*7/8, this.height/4,
+             rightX+(this.zoomWidth-rightX)/2, this.height/2,
+             rightX+(this.zoomWidth-rightX)/8, this.height*3/4,
+             rightX, this.height],
+    stroke: 'black',
+    strokeWidth: 1,
+    tension: 0.5
+  }));
+  this.layer.draw();
 }

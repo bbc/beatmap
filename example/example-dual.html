@@ -3,7 +3,6 @@
   <title>BeatMap example</title>
   <script src="../bower_components/kineticjs/kinetic.min.js"></script>
   <script src="../beatmap.js"></script>
-  <script src="../beatmap-join.js"></script>
 </head>
 <body onload="trackClicks()">
 
@@ -48,45 +47,44 @@
   var overview = document.getElementById("overview");
 
   // metadata of images to use
-  var data = {
-    height: 240,
-    image: [
-      {
-        src: '1',
-        tilewidth: 240,
-        width: 960,
-        format: 'jpg'
-      },
-      {
-        src: '5',
-        tilewidth: 240,
-        width: 4800,
-        format: 'jpg'
-      },
-      {
-        src: '10',
-        tilewidth: 240,
-        width: 9600,
-        format: 'jpg'
-      }
-    ]
-  };
+  var data = [
+    {
+      src: '1',
+      tilewidth: 240,
+      width: 960,
+      format: 'jpg'
+    },
+    {
+      src: '5',
+      tilewidth: 240,
+      width: 4800,
+      format: 'jpg'
+    },
+    {
+      src: '10',
+      tilewidth: 240,
+      width: 9600,
+      format: 'jpg'
+    }
+  ];
 
   // when duration of recording is known
   audio.addEventListener('durationchange', function()
   {
     // initialize top display
     bmZoomed = new BeatMap(zoomed,          // div element to use
-                           data,            // image metadata
                            960,             // width of element in pixels
+                           data,            // image metadata
+                           240,             // height of images in pixels
                            audio.duration,  // length of recording in secs
                            1,               // index of image to use (default=0)
                            true);           // display timeline flag (default=true)
 
     // initialize bottom display
     bmOverview = new BeatMap(overview,
-                             data,
                              960,
+                             data,
+                             240,
                              audio.duration,
                              0,
                              true);
@@ -119,14 +117,14 @@
 
   function zoom(zoomin) {
     if (zoomin) {
-      if (currentZoom < data.image.length-1) {
+      if (currentZoom < data.length-1) {
         currentZoom++;
-        bmZoomed.init(data.image[currentZoom]);
+        bmZoomed.init(data[currentZoom]);
       }
     } else {
       if (currentZoom > 1) {
         currentZoom--;
-        bmZoomed.init(data.image[currentZoom]);
+        bmZoomed.init(data[currentZoom]);
       }
     }
   }
