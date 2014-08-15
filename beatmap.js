@@ -95,11 +95,11 @@ BeatMap.prototype.getViewLength = function()
  * @param {number} seconds
  * @returns {string}
  */
-BeatMap.prototype.secsToMinsSecs = function(secs)
+BeatMap.prototype.secsToMinsSecs = function(seconds)
 {
-  var mins = Math.floor(secs / 60);
-  var secs = secs - mins*60;
-  return ('0'+mins).slice(-2)+':'+('0'+Math.round(secs)).slice(-2);
+  var minutes = Math.floor(seconds / 60);
+  var seconds = seconds - minutes*60;
+  return ('0'+minutes).slice(-2)+':'+('0'+Math.round(seconds)).slice(-2);
 }
 
 /**
@@ -156,10 +156,10 @@ BeatMap.prototype.drawTime = function()
  * Initialize KineticJS.
  * @param {Object} container
  */
-BeatMap.prototype.kineticInit = function(containerId)
+BeatMap.prototype.kineticInit = function(container)
 {
   this.stage = new Kinetic.Stage({
-    container: containerId,
+    container: container,
     width: this.outWidth,
     height: this.height
   });
@@ -205,31 +205,31 @@ BeatMap.prototype.kineticInit = function(containerId)
  * Check if tile has been loaded and load if not.
  * @param {number} index Index of tile
  */
-BeatMap.prototype.loadTile = function(i)
+BeatMap.prototype.loadTile = function(index)
 {
-  if (this.tiles[i] === undefined)
+  if (this.tiles[index] === undefined)
   {
     var that=this;
 
     // display loading image
     var loadkimg = new Kinetic.Image({
-      x: this.tilewidth*i,
+      x: this.tilewidth*index,
       y: 0,
       image: this.loadimg
     });
     this.group.add(loadkimg);
 
     // load actual image
-    this.tiles[i] = new Image();
-    this.tiles[i].onload = function() {
+    this.tiles[index] = new Image();
+    this.tiles[index].onload = function() {
       var kimg = new Kinetic.Image({
-        x: that.tilewidth*i,
+        x: that.tilewidth*index,
         y: 0,
-        image: that.tiles[i]
+        image: that.tiles[index]
       });
       that.group.add(kimg);
     };
-    this.tiles[i].src = this.src+'_'+i+'.'+this.format;
+    this.tiles[index].src = this.src+'_'+index+'.'+this.format;
   }
 }
 
@@ -237,11 +237,11 @@ BeatMap.prototype.loadTile = function(i)
  * Draw display with cursor at given point.
  * @param {number} seconds Position of cursor
  */
-BeatMap.prototype.draw = function(secs)
+BeatMap.prototype.draw = function(seconds)
 {
   this.offset = 0;
   var overlap = 0;
-  var pos = Math.round(this.width/this.length*secs);
+  var pos = Math.round(this.width/this.length*seconds);
 
   // find which 'page' cursor is on, set offset
   for (var i=this.cuts-1; i>=0; i--)
@@ -294,9 +294,9 @@ BeatMap.prototype.findSecs = function()
  * Set selection in point.
  * @param {number} seconds
  */
-BeatMap.prototype.setIn = function(secs)
+BeatMap.prototype.setIn = function(seconds)
 {
-  this.inpoint = secs;
+  this.inpoint = seconds;
   if (this.inpoint > this.outpoint) this.outpoint = this.inpoint;
   this.drawMarker();
 }
@@ -305,9 +305,9 @@ BeatMap.prototype.setIn = function(secs)
  * Set selection out point.
  * @param {number} seconds
  */
-BeatMap.prototype.setOut = function(secs)
+BeatMap.prototype.setOut = function(seconds)
 {
-  this.outpoint = secs;
+  this.outpoint = seconds;
   if (this.outpoint < this.inpoint) this.inpoint = this.outpoint;
   this.drawMarker();
 }
@@ -334,11 +334,10 @@ BeatMap.prototype.drawMarker = function()
  * @param {number} height Height of display (in pixels)
  * @param {number} trackLength Length of audio track (in seconds)
  */
-function BeatMapJoin(containerId, containerWidth, overviewWidth, height,
-    length)
+function BeatMapJoin(container, topWidth, bottomWidth, height, length)
 {
-  this.zoomWidth=containerWidth;
-  this.overviewWidth = overviewWidth;
+  this.zoomWidth=topWidth;
+  this.overviewWidth = bottomWidth;
   this.height=height;
   this.length=length;
 
@@ -346,17 +345,17 @@ function BeatMapJoin(containerId, containerWidth, overviewWidth, height,
   this.vislength=0;
 
   // initialize
-  this.kineticInit(containerId);
+  this.kineticInit(container);
 }
 
 /**
  * Initialize KineticJS
  * @param {Object} container DIV element
  */
-BeatMapJoin.prototype.kineticInit = function(containerId)
+BeatMapJoin.prototype.kineticInit = function(container)
 {
   this.stage = new Kinetic.Stage({
-    container: containerId,
+    container: container,
     width: this.zoomWidth,
     height: this.height
   });
@@ -370,27 +369,32 @@ BeatMapJoin.prototype.kineticInit = function(containerId)
  * @param {number} topLength Length of visible audio in top display, in seconds
  * @param {number} bottomLength Length of visible audio in bottom display, in seconds
  */
-BeatMapJoin.prototype.draw = function(zoomOffset, zoomLength, overallLength)
+BeatMapJoin.prototype.draw = function(topOffset, topLength, bottomLength)
 {
   this.layer.destroyChildren();
   var xOffset = (this.zoomWidth-this.overviewWidth)/2;
-  var leftX = xOffset+this.overviewWidth/overallLength*zoomOffset;
-  var rightX = xOffset+this.overviewWidth/overallLength*(zoomOffset+zoomLength);
+  var leftX = xOffset+this.overviewWidth/bottomLength*topOffset;
+  var rightX = xOffset+this.overviewWidth/bottomLength*(topOffset+topLength);
+  var rightDiff = this.zoomWidth-rightX;
+
+  // draw left spline
   this.layer.add(new Kinetic.Line({
     points: [0, 0,
-             leftX/8, this.height/4,
-             leftX/2, this.height/2,
+             leftX*1/8, this.height*1/4,
+             leftX*4/8, this.height*2/4,
              leftX*7/8, this.height*3/4,
              leftX, this.height],
     stroke: 'black',
     strokeWidth: 1,
     tension: 0.5
   }));
+
+  // draw right spline
   this.layer.add(new Kinetic.Line({
     points: [this.zoomWidth, 0,
-             rightX+(this.zoomWidth-rightX)*7/8, this.height/4,
-             rightX+(this.zoomWidth-rightX)/2, this.height/2,
-             rightX+(this.zoomWidth-rightX)/8, this.height*3/4,
+             rightX+rightDiff*7/8, this.height*1/4,
+             rightX+rightDiff*4/8, this.height*2/4,
+             rightX+rightDiff*1/8, this.height*3/4,
              rightX, this.height],
     stroke: 'black',
     strokeWidth: 1,
