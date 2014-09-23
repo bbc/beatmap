@@ -22,6 +22,7 @@
  * @param {Object} images Metadata of images
  * @param {number} height of images (in pixels)
  * @param {number} trackLength Length of audio track (in seconds)
+ * @param {String} [loadImage='tileload.png'] Tile image to display when loading
  * @param {number} [index=0] Index of image to use initially
  * @param {boolean} [showTime=true] Flag to display time markers
  */
@@ -30,6 +31,7 @@ function BeatMap(container,
                  images,
                  height,
                  trackLength,
+                 loadImage,
                  index,
                  showTime)
 {
@@ -39,6 +41,7 @@ function BeatMap(container,
   this.ticksPerView=10;
 
   // set defaults
+  var loadImage = typeof loadImage !== 'undefined' ? loadImage : 'tileload.png';
   var index = typeof index !== 'undefined' ? index : 0;
   var showTime = typeof showTime !== 'undefined' ? showTime : true;
 
@@ -48,6 +51,7 @@ function BeatMap(container,
   this.outWidth=containerWidth;
   this.showTime=showTime;
   this.currentZoom=index;
+  this.loadImage=loadImage;
 
   // initialize
   this.init(images[this.currentZoom]);
@@ -190,7 +194,7 @@ BeatMap.prototype.kineticInit = function(container)
     height: this.height
   });
   this.loadimg = new Image();
-  this.loadimg.src = 'tileload.png';
+  this.loadimg.src = this.loadImage; 
 
   this.group.add(this.selection);
   this.group.add(this.ticks);
