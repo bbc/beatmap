@@ -14,11 +14,12 @@ working directory.
 ## Examples 
 Two working examples are supplied:
 
-* __[example/example.html](example/example.html)__ implements a single display
-  with three zoom levels and selection functionality
-* __[example/example-dual.html](example/example-dual.html)__ is as above, but
-  includes a second zoomed display with lines to indicate which part of the
-  recording the zoomed display is showing
+* __[example/example.html](http://htmlpreview.github.io/?https://github.com/bbcrd/beatmap/blob/master/example/example.html)__
+  implements a single display with three zoom levels and selection
+  functionality
+* __[example/example-dual.html](http://htmlpreview.github.io/?https://github.com/bbcrd/beatmap/blob/master/example/example-dual.html)__
+  is as above, but includes a second zoomed display with lines to indicate
+  which part of the recording the zoomed display is showing
 
 ## Generating tiles
 Firstly, generate images from your audio data using something like
